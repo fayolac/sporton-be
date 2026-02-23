@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "sportsporton321";
 
 export const signin = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {email, password} = req.body;
+        const {email, password, name} = req.body;
 
         //Check if user exists or not
         const user = await User.findOne({email})
@@ -19,7 +19,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
         //Validate password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            res.status(400).json({message: "Invalid Credentials, wrond password"});
+            res.status(400).json({message: "Invalid Credentials, wrong password"});
             return;
         }
 
