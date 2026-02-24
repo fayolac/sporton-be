@@ -1,18 +1,39 @@
 import mongoose, {Schema, Document} from "mongoose";
 
-export interface ITransactions extends Document {
-    name: string;
-    description: string;
-    stock: number;
-    price: number;
-    imageUrl: string;
-    category: mongoose.Types.ObjectId;
+export interface IPurchasedItem {
+    productId: mongoose.Types.ObjectId;
+    qty: number;
 }
 
-const TransactionsSchema: Schema = new Schema ({
-    name: {type: String, required: true},
-    description: {type: String, required: true},
-    imageUrl: {type: String, required: true},
-})
+export interface ITransaction extends Document {
+    paymentProof: string;
+    status: "pending" | "paid" | "rejected";
+    purchasedItems: IPurchasedItem[];
+    totalPayment: number;
+    customerName: string;
+    customerContact: string;
+    customerAddress: string;
 
-export default mongoose.model<ITransactions>("Category", TransactionsSchema);
+}
+
+const PurchasedItemSchema: Schema = new Schema ({
+    productId: {type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true},
+    qty: {type: Number, required: true, min: 1},
+}, {_id: false})
+
+const TransactionSchema: Schema = new Schema ({
+    paymentProof: {type: String, required: true},
+    status: {
+        type: String,
+        enum: ['pending', 'paid', 'rejected'],
+        default: 'pending',
+        required: true,
+    },
+    purchasedItems: {type: [PurchasedItemSchema], required: true},
+    totalPayment: {type: Number, required: true},
+    customerName: {type: String, required: true},
+    customerContact: {type: String, required: true},
+    customerAddress: {type: String, required: true},
+}, {timestamps: true})
+
+export default mongoose.model<ITransaction>("Transaction", TransactionSchema);
